@@ -49,6 +49,10 @@ In `Startup.cs`, initialize SignalR on server side by adding this to `ConfigureS
 Create a file `PricingHub.cs`: 
 
 ```csharp
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 
@@ -56,9 +60,25 @@ namespace StreamWebService
 {
   public class PricingHub : Hub
   {
-    public async Task SendMessage(string user, string message)
+    
+    public async IAsyncEnumerable<string> Subscribe(
+            string uic,
+            string assetType,
+            [EnumeratorCancellation]
+            CancellationToken cancellationToken)
     {
-      await Clients.All.SendAsync("ReceiveMessage", user, message);
+      for (var i = 0; i < 10; i++)
+      {
+        // Check the cancellation token regularly so that the server will stop
+        // producing items if the client disconnects.
+        cancellationToken.ThrowIfCancellationRequested();
+
+        yield return $"{i} : {uic}-{assetType}";
+
+        // Use the cancellationToken in other APIs that accept cancellation
+        // tokens so the cancellation can flow down to them.
+        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+      }
     }
   }
 }
@@ -70,7 +90,7 @@ Add the PricingHub to endoints in `Startup.cs`
   app.UseEndpoints(endpoints =>
   {
   	endpoints.MapRazorPages();
-+  	endpoints.MapHub<PricingHub>("/subcribe/priceinfo");
++  	endpoints.MapHub<PricingHub>("/subscribe/infoprice");
   });
 ```
 
@@ -109,34 +129,32 @@ Change `Pages\Index.cshtml` to :
 ```xml
 @page
 <div class="container">
-    <div class="row">&nbsp;</div>
     <div class="row">
-        <div class="col-2">User</div>
-        <div class="col-4"><input type="text" id="userInput" /></div>
+        <form>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <input type="text" id="uic" class="form-control" placeholder="uic"/>
+                </div>
+                <div class="form-group col-md-6">
+                    <input class="form-control" type="text" id="assetType" placeholder="Asset Type"/>
+                </div>
+            </div>
+            <button type="button" id="startStreaming" class="btn btn-primary" disabled="true">Start Streaming</button>
+
+        </form>
     </div>
-    <div class="row">
-        <div class="col-2">Message</div>
-        <div class="col-4"><input type="text" id="messageInput" /></div>
-    </div>
-    <div class="row">&nbsp;</div>
+    <hr/>
     <div class="row">
         <div class="col-6">
-            <input type="button" id="sendButton" value="Send Message" />
+            <ul id="messagesList" style="list-style: none; padding:  0; margin:  0"></ul>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-12">
-        <hr />
-    </div>
-</div>
-<div class="row">
-    <div class="col-6">
-        <ul id="messagesList"></ul>
-    </div>
-</div>
+
+
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/pricing.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 ```
 
 
@@ -149,33 +167,44 @@ Creat file `wwwroot/js/pricing.js`
 // wwwroot/js/pricing.js
 "use strict";
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/subcribe/priceinfo").build();
+const pricingConnection = new signalR.HubConnectionBuilder()
+    .withUrl("/subscribe/infoprice")
+    .build();
 
-//Disable send button until connection is established
-document.getElementById("sendButton").disabled = true;
-
-connection.on("ReceiveMessage", function (user, message) {
-    var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    var encodedMsg = user + " says " + msg;
+const showMessage = (content) => {
     var li = document.createElement("li");
-    li.textContent = encodedMsg;
-    document.getElementById("messagesList").appendChild(li);
+    li.textContent = content;
+    document.getElementById("messagesList").prepend(li);
+};
+
+const setButtonEnabled = status => 
+    document.getElementById("startStreaming").disabled = !status;
+
+pricingConnection.start().then( ()=> {
+    setButtonEnabled(true);
+    showMessage("Conncted with server");
+}).catch((err) => {
+    showMessage("Failed to connect to server" + err.toString());
 });
 
-connection.start().then(function () {
-    document.getElementById("sendButton").disabled = false;
-}).catch(function (err) {
-    return console.error(err.toString());
-});
+document
+    .getElementById("startStreaming")
+    .addEventListener("click", () => {
+        setButtonEnabled(false);
+        const uic = document.getElementById("uic").value;
+        const assetType = document.getElementById("assetType").value;
 
-document.getElementById("sendButton").addEventListener("click", function (event) {
-    var user = document.getElementById("userInput").value;
-    var message = document.getElementById("messageInput").value;
-    connection.invoke("SendMessage", user, message).catch(function (err) {
-        return console.error(err.toString());
+        pricingConnection.stream("Subscribe", uic, assetType)
+            .subscribe({
+                next: showMessage,
+                complete: () => {
+                    showMessage("Stream completed");
+                    setButtonEnabled(true);
+                },
+                error: showMessage,
+            });
+        event.preventDefault();
     });
-    event.preventDefault();
-});
 ```
 
 Update `StreamWebService.csproj` : 
@@ -195,3 +224,6 @@ Update `StreamWebService.csproj` :
 dotnet run
 ```
 
+open http://localhost:5000/
+
+![image-20201108122924736](docs/images/stream-client.gif)
