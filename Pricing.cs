@@ -10,7 +10,7 @@ namespace StreamWebService
   public class PricingHub : Hub
   {
     
-    public async IAsyncEnumerable<string> Counter(
+    public async IAsyncEnumerable<string> Subscribe(
             string uic,
             string assetType,
             [EnumeratorCancellation]
@@ -28,13 +28,6 @@ namespace StreamWebService
         // tokens so the cancellation can flow down to them.
         await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
       }
-    }    // public async Task SendMessage(string user, string message)
-    // {
-    //   while (true)
-    //   {
-    //     await Task.Delay(TimeSpan.FromSeconds(1));
-    //     await Clients.All.SendAsync(); 
-    //   }
-    // }
+    }
   }
 }

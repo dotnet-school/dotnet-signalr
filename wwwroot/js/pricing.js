@@ -1,8 +1,8 @@
 // wwwroot/js/pricing.js
 "use strict";
 
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/subcribe/priceinfo")
+const pricingConnection = new signalR.HubConnectionBuilder()
+    .withUrl("/subscribe/infoprice")
     .build();
 
 const showMessage = (content) => {
@@ -14,7 +14,7 @@ const showMessage = (content) => {
 const setButtonEnabled = status => 
     document.getElementById("startStreaming").disabled = !status;
 
-connection.start().then( ()=> {
+pricingConnection.start().then( ()=> {
     setButtonEnabled(true);
     showMessage("Conncted with server");
 }).catch((err) => {
@@ -28,7 +28,7 @@ document
         const uic = document.getElementById("uic").value;
         const assetType = document.getElementById("assetType").value;
 
-        connection.stream("Counter", uic, assetType)
+        pricingConnection.stream("Subscribe", uic, assetType)
             .subscribe({
                 next: showMessage,
                 complete: () => {
