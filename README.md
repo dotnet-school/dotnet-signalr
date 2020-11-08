@@ -107,6 +107,7 @@ git status
 Change `Pages\Index.cshtml` to : 
 
 ```xml
+@page
 <div class="container">
     <div class="row">&nbsp;</div>
     <div class="row">
@@ -175,5 +176,16 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     });
     event.preventDefault();
 });
+```
+
+Update `csproj` : 
+
+```xml
+  <ItemGroup>
+    <Content Update="wwwroot\js\pricing.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 ```
 
