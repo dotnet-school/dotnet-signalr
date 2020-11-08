@@ -227,3 +227,59 @@ dotnet run
 open http://localhost:5000/
 
 ![image-20201108122924736](docs/images/stream-client.gif)
+
+
+
+### Dockerize app
+
+Create `Dockerfile`: 
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+WORKDIR /source
+
+COPY ./*.csproj .
+RUN dotnet restore
+
+COPY . .
+RUN dotnet publish -c release -o /app --no-restore
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+WORKDIR /app
+
+COPY --from=build /app .
+
+EXPOSE 80  
+ENTRYPOINT ["dotnet", "StreamWebService.dll"]
+```
+
+
+
+Create `.dockerignore`: 
+
+```
+**/.dockerignore
+**/.project
+**/.vs
+**/.idea
+**/.vscode
+**/*.*proj.user
+**/bin
+**/Dockerfile*
+**/obj
+```
+
+
+
+Run as docker container: 
+
+```bash
+# Create image
+docker build -t stream-web-servce .
+
+# Run app as continer on port 5000
+docker run -p 5000:80 stream-web-servce
+```
+
+Now open http://localhost:5000/ to make sure that everything is working fine.
+
