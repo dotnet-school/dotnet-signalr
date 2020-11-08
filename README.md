@@ -14,7 +14,7 @@ dotnet new webapp -o StreamWebService
 cd StreamWebService
 
 # Create dockerignore for the project
-dotnet new dockerignore
+dotnet new gitignore
 ```
 
 
