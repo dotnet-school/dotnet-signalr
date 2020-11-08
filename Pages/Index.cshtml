@@ -1,30 +1,28 @@
 ﻿@page
 <div class="container">
-    <div class="row">&nbsp;</div>
     <div class="row">
-        <div class="col-2">User</div>
-        <div class="col-4"><input type="text" id="userInput" /></div>
+        <form>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <input type="text" id="uic" class="form-control" placeholder="uic"/>
+                </div>
+                <div class="form-group col-md-6">
+                    <input class="form-control" type="text" id="assetType" placeholder="Asset Type"/>
+                </div>
+            </div>
+            <button type="button" id="startStreaming" class="btn btn-primary" disabled="true">Start Streaming</button>
+
+        </form>
     </div>
-    <div class="row">
-        <div class="col-2">Message</div>
-        <div class="col-4"><input type="text" id="messageInput" /></div>
-    </div>
-    <div class="row">&nbsp;</div>
+    <hr/>
     <div class="row">
         <div class="col-6">
-            <input type="button" id="startStreaming" value="Start Streaming" />
+            <ul id="messagesList" style="list-style: none; padding:  0; margin:  0"></ul>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-12">
-        <hr />
-    </div>
-</div>
-<div class="row">
-    <div class="col-6">
-        <ul id="messagesList"></ul>
-    </div>
-</div>
+
+
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/pricing.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">

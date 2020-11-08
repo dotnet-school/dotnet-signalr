@@ -1,48 +1,41 @@
 // wwwroot/js/pricing.js
 "use strict";
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/subcribe/priceinfo").build();
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/subcribe/priceinfo")
+    .build();
 
-//Disable send button until connection is established
-// document.getElementById("sendButton").disabled = true;
-
-connection.on("ReceiveMessage", function (user, message) {
-    var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    var encodedMsg = user + " says " + msg;
+const showMessage = (content) => {
     var li = document.createElement("li");
-    li.textContent = encodedMsg;
-    document.getElementById("messagesList").appendChild(li);
+    li.textContent = content;
+    document.getElementById("messagesList").prepend(li);
+};
+
+const setButtonEnabled = status => 
+    document.getElementById("startStreaming").disabled = !status;
+
+connection.start().then( ()=> {
+    setButtonEnabled(true);
+    showMessage("Conncted with server");
+}).catch((err) => {
+    showMessage("Failed to connect to server" + err.toString());
 });
 
-connection.start().then(function () {
-    document.getElementById("startStreaming").disabled = false;
-}).catch(function (err) {
-    return console.error(err.toString());
-});
+document
+    .getElementById("startStreaming")
+    .addEventListener("click", () => {
+        setButtonEnabled(false);
+        const uic = document.getElementById("uic").value;
+        const assetType = document.getElementById("assetType").value;
 
-document.getElementById("startStreaming").addEventListener("click", function (event) {
-    var uic = document.getElementById("userInput").value;
-    var assetType = document.getElementById("messageInput").value;
-    // connection.invoke("SendMessage", user, message).catch(function (err) {
-    //     return console.error(err.toString());
-    // });
-    connection.stream("Counter", uic, assetType)
-        .subscribe({
-            next: (item) => {
-                var li = document.createElement("li");
-                li.textContent = item;
-                document.getElementById("messagesList").appendChild(li);
-            },
-            complete: () => {
-                var li = document.createElement("li");
-                li.textContent = "Stream completed";
-                document.getElementById("messagesList").appendChild(li);
-            },
-            error: (err) => {
-                var li = document.createElement("li");
-                li.textContent = err;
-                document.getElementById("messagesList").appendChild(li);
-            },
-        });
-    event.preventDefault();
-});
+        connection.stream("Counter", uic, assetType)
+            .subscribe({
+                next: showMessage,
+                complete: () => {
+                    showMessage("Stream completed");
+                    setButtonEnabled(true);
+                },
+                error: showMessage,
+            });
+        event.preventDefault();
+    });
