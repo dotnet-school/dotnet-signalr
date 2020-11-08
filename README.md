@@ -178,7 +178,7 @@ document.getElementById("sendButton").addEventListener("click", function (event)
 });
 ```
 
-Update `csproj` : 
+Update `StreamWebService.csproj` : 
 
 ```xml
   <ItemGroup>
@@ -187,5 +187,11 @@ Update `csproj` :
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+```
+
+
+
+```
+dotnet run
 ```
 
