@@ -34,5 +34,41 @@ namespace StreamWebService
         await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
       }
     }
+
+    public async IAsyncEnumerable<Payload> SubscribeTyped(
+            string uic,
+            string assetType,
+            [EnumeratorCancellation]
+            CancellationToken cancellationToken)
+    {
+      Console.WriteLine($"Starting to stream for {uic}-{assetType}");
+
+      for (var i = 0; i < 10; i++)
+      {
+        // Check the cancellation token regularly so that the server will stop
+        // producing items if the client disconnects.
+        cancellationToken.ThrowIfCancellationRequested();
+        Console.WriteLine("Sending message");
+        var message = $"{i} : {uic}-{assetType}";
+
+        var payload = new Payload {
+                Message = message,
+                UpdateId = i
+        };
+        
+        yield return payload;
+        Console.WriteLine($"Send : {message}");
+
+        // Use the cancellationToken in other APIs that accept cancellation
+        // tokens so the cancellation can flow down to them.
+        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+      }
+    }
+
+    public class Payload
+    {
+      public string Message { get; init; }
+      public int UpdateId { get; init; }
+    }
   }
 }

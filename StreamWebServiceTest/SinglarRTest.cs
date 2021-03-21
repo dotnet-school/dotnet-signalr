@@ -14,8 +14,8 @@ namespace StreamWebServiceTest
       {
         var url = "http://localhost:5000/subscribe/infoprice";
 
-        var client = new PriceStream<string>(url, "211", "Stock");
-        var client2 = new PriceStream<string>(url, "33", "FxSpot");
+        var client = new PriceStream(url, "211", "Stock");
+        var client2 = new PriceStream(url, "33", "FxSpot");
         
         Assert.Equal("0 : 211-Stock" ,await client.GetNextMessage());
         Assert.Equal("0 : 33-FxSpot" ,await client2.GetNextMessage());
@@ -56,7 +56,6 @@ namespace StreamWebServiceTest
           var returned2 = await reader.ReadAsync();
           Console.Write(returned);
           Console.Write(returned2);
-          Console.ReadKey();
         }
     }
 }

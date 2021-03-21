@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace StreamWebServiceTest
 {
-  public class PriceStream<T>
+  public class PriceStream
   {
     private HubConnection _connection;
     private ChannelReader<object> _reader;
@@ -15,13 +15,20 @@ namespace StreamWebServiceTest
               .WithUrl(url)
               .Build();
       _connection.StartAsync().GetAwaiter().GetResult();
-      _reader  = _connection.StreamAsChannelCoreAsync("Subscribe", typeof(T), new[] {uic, assetType}).GetAwaiter().GetResult();
+      _reader  = _connection.StreamAsChannelCoreAsync("SubscribeTyped", typeof(PriceUpdate), new[] {uic, assetType}).GetAwaiter().GetResult();
     }
 
-    public async Task<T> GetNextMessage()
+    public async Task<string> GetNextMessage()
     {
       var value = await _reader.ReadAsync();
-      return (T) value;
+      var update = (PriceUpdate) value;
+      return update.Message;
+    }
+    
+    public class PriceUpdate
+    {
+      public string Message { get; init; }
+      public int UpdateId { get; init; }
     }
   }
 }
