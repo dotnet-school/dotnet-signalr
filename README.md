@@ -302,5 +302,12 @@ Now open http://localhost:5000/ to make sure that everything is working fine.
   dotnet sln add StreamWebService
   ```
 
-- 
+- Create new client project
+
+  ```
+  dotnet new xunit -o StreamWebServiceTest
+  dotnet sln add StreamWebServiceTest
+  ```
+
+  
 
