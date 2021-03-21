@@ -34,7 +34,9 @@ namespace StreamWebServiceTest
           string returnType = "";
           ChannelReader<object> reader = await connection.StreamAsChannelCoreAsync("Subscribe", typeof(string), new []{uic, assetType});
           var returned = await reader.ReadAsync();
+          var returned2 = await reader.ReadAsync();
           Console.Write(returned);
+          Console.Write(returned2);
           Console.ReadKey();
         }
     }
