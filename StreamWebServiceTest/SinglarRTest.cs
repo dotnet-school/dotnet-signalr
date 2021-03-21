@@ -12,11 +12,10 @@ namespace StreamWebServiceTest
       [Fact]
       public async Task TestClient()
       {
-        var client = new StreamingClient<string>("http://localhost:5000/subscribe/infoprice");
-        var client2 = new StreamingClient<string>("http://localhost:5000/subscribe/infoprice");
-        
-        await client.StartAsync("211", "Stock");
-        await client2.StartAsync("33", "FxSpot");
+        var url = "http://localhost:5000/subscribe/infoprice";
+
+        var client = new PriceStream<string>(url, "211", "Stock");
+        var client2 = new PriceStream<string>(url, "33", "FxSpot");
         
         Assert.Equal("0 : 211-Stock" ,await client.GetNextMessage());
         Assert.Equal("0 : 33-FxSpot" ,await client2.GetNextMessage());
