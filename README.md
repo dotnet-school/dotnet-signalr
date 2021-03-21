@@ -291,7 +291,7 @@ Now open http://localhost:5000/ to make sure that everything is working fine.
 
 
 
-# Creating a singlarR Client
+# Creating a SignalR Client
 
 
 
@@ -309,5 +309,28 @@ Now open http://localhost:5000/ to make sure that everything is working fine.
   dotnet sln add StreamWebServiceTest
   ```
 
+- Add SignalR client to test project
+
+  ```
+  dotnet add StreamWebServiceTest package Microsoft.AspNetCore.SignalR.Client
   
+  ```
+	**StreamWebServiceTest/StreamWebServiceTest.cspro** : 
+  
+  ```diff
+  + <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+  ```
+
+- Start streaming service to start working on client : 
+
+  ```
+  dotnet run --project StreamWebService/StreamWebService.csproj
+  ```
+
+  
+
+
 
