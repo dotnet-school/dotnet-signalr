@@ -8,7 +8,27 @@ namespace StreamWebServiceTest
 {
     public class UnitTest1
     {
-        [Fact]
+
+      [Fact]
+      public async Task TestClient()
+      {
+        var client = new StreamingClient<string>("http://localhost:5000/subscribe/infoprice");
+        var client2 = new StreamingClient<string>("http://localhost:5000/subscribe/infoprice");
+        
+        await client.StartAsync("211", "Stock");
+        await client2.StartAsync("33", "FxSpot");
+        
+        Assert.Equal("0 : 211-Stock" ,await client.GetNextMessage());
+        Assert.Equal("0 : 33-FxSpot" ,await client2.GetNextMessage());
+        
+        Assert.Equal("1 : 211-Stock", await client.GetNextMessage());
+        Assert.Equal("1 : 33-FxSpot" ,await client2.GetNextMessage());
+        
+        Assert.Equal("2 : 211-Stock", await client.GetNextMessage());
+        Assert.Equal("2 : 33-FxSpot" ,await client2.GetNextMessage());
+      }
+
+      [Fact]
         public async Task ShouldConnectToAnEndpoint()
         {
           var url = "http://localhost:5000/subscribe/infoprice";
