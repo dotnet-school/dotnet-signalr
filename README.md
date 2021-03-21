@@ -15,6 +15,9 @@ cd StreamWebService
 
 # Create dockerignore for the project
 dotnet new gitignore
+
+# Run the app
+dotnet run
 ```
 
 
@@ -285,4 +288,19 @@ docker run -p 5000:80 stream-web-servce
 ```
 
 Now open http://localhost:5000/ to make sure that everything is working fine.
+
+
+
+# Creating a singlarR Client
+
+
+
+- Move StreamingWebService in different dir
+
+  ```
+  dotnet new sln 
+  dotnet sln add StreamWebService
+  ```
+
+- 
 
